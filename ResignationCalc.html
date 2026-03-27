@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Resignation Letter Calculator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #FAF8F5; color: #2D2A26; min-height: 100vh; }
+    .calc-header { background: #2D2A26; padding: 40px 32px 36px; text-align: center; }
+    .calc-header-eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #E8A87C; margin-bottom: 12px; font-weight: 500; }
+    .calc-header h1 { font-family: 'Lora', serif; font-size: clamp(24px, 5vw, 38px); font-weight: 700; color: #FAF8F5; line-height: 1.2; margin-bottom: 12px; }
+    .calc-header p { color: #A09890; font-size: 15px; font-weight: 300; max-width: 480px; margin: 0 auto; line-height: 1.6; }
+    .calc-body { max-width: 780px; margin: 0 auto; padding: 40px 24px 60px; }
+    .calc-card { background: #FFFFFF; border-radius: 16px; padding: 28px; margin-bottom: 16px; border: 1px solid #EDE9E3; box-shadow: 0 2px 12px rgba(45,42,38,0.04); }
+    .calc-card-title { font-family: 'Lora', serif; font-size: 18px; font-weight: 600; color: #2D2A26; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+    .calc-step-num { width: 28px; height: 28px; border-radius: 50%; background: #2D2A26; color: #FAF8F5; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .calc-step-num.warm { background: #E8A87C; }
+    .calc-step-num.dim { background: #D4CFC8; }
+    .calc-card-desc { font-size: 13px; color: #8A847C; margin-bottom: 20px; line-height: 1.5; padding-left: 38px; }
+    .calc-input-wrap { position: relative; }
+    .calc-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #A09890; font-size: 15px; pointer-events: none; }
+    .calc-input { width: 100%; padding: 13px 14px 13px 32px; border: 1.5px solid #E0DBD4; border-radius: 10px; background: #FAF8F5; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; color: #2D2A26; outline: none; transition: border-color 0.18s, background 0.18s; -moz-appearance: textfield; }
+    .calc-input::-webkit-outer-spin-button, .calc-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .calc-input:focus { border-color: #E8A87C; background: #FFFFFF; }
+    .calc-toggle { display: flex; background: #F0ECE6; border-radius: 8px; padding: 3px; gap: 2px; width: fit-content; margin-bottom: 14px; }
+    .calc-toggle button { padding: 7px 18px; border: none; background: transparent; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; color: #8A847C; cursor: pointer; transition: all 0.18s; }
+    .calc-toggle button.active { background: #FFFFFF; color: #2D2A26; box-shadow: 0 1px 4px rgba(45,42,38,0.1); }
+    .calc-convert-hint { font-size: 12px; color: #A09890; margin-top: 8px; }
+    .calc-convert-hint span { color: #E8A87C; font-weight: 500; }
+    .calc-check-btn { width: 100%; margin-top: 16px; padding: 14px; background: #2D2A26; border: none; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #FAF8F5; cursor: pointer; transition: background 0.2s; letter-spacing: 0.2px; }
+    .calc-check-btn:hover { background: #1A1816; }
+    .calc-add-btn { width: 100%; padding: 14px; border: 1.5px dashed #D4CFC8; border-radius: 10px; background: transparent; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: #A09890; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .calc-add-btn:hover { border-color: #E8A87C; color: #E8A87C; background: #FDF6EF; }
+    .calc-remove-link { font-size: 12px; color: #C4BFB8; background: none; border: none; cursor: pointer; margin-left: auto; transition: color 0.15s; font-family: 'Inter', sans-serif; }
+    .calc-remove-link:hover { color: #D07070; }
+    .calc-note { font-size: 12px; color: #A09890; background: #F5F2EE; border-radius: 8px; padding: 10px 14px; margin-top: 12px; line-height: 1.5; }
+    .calc-note strong { color: #E8A87C; font-weight: 600; }
+    .calc-encourage { background: linear-gradient(135deg, #FDF3EB 0%, #FAF8F5 100%); border: 1px dashed #E8C4A0; border-radius: 12px; padding: 18px 20px; margin-top: 16px; text-align: center; }
+    .calc-encourage p { font-size: 13px; color: #8A847C; line-height: 1.6; margin-bottom: 10px; }
+    .calc-encourage strong { color: #2D2A26; }
+    .calc-results { margin-top: 8px; }
+    .calc-results-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #A09890; text-align: center; margin-bottom: 20px; font-weight: 500; }
+    .calc-hero { background: #2D2A26; border-radius: 16px; padding: 32px 24px 28px; text-align: center; margin-bottom: 16px; }
+    .calc-hero-eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #E8A87C; font-weight: 500; margin-bottom: 6px; }
+    .calc-hero-num { font-family: 'Lora', serif; font-size: clamp(56px, 12vw, 80px); font-weight: 700; color: #FAF8F5; line-height: 1; margin-bottom: 4px; }
+    .calc-hero-unit { font-size: 16px; color: #A09890; font-weight: 300; margin-bottom: 18px; }
+    .calc-hero-sub { display: flex; justify-content: center; gap: 24px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .calc-hero-sub-item { text-align: center; }
+    .calc-hero-sub-val { font-family: 'Lora', serif; font-size: 22px; font-weight: 600; color: #FAF8F5; display: block; }
+    .calc-hero-sub-label { font-size: 11px; color: #706A62; font-weight: 400; text-transform: uppercase; letter-spacing: 1px; }
+    .calc-chart-card { background: #FFFFFF; border-radius: 16px; padding: 24px; margin-bottom: 16px; border: 1px solid #EDE9E3; box-shadow: 0 2px 12px rgba(45,42,38,0.04); }
+    .calc-chart-title { font-family: 'Lora', serif; font-size: 16px; font-weight: 600; color: #2D2A26; margin-bottom: 4px; }
+    .calc-chart-sub { font-size: 12px; color: #A09890; margin-bottom: 20px; line-height: 1.5; }
+    .calc-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+    .calc-stat { background: #FAF8F5; border-radius: 10px; padding: 14px 12px; text-align: center; border: 1px solid #EDE9E3; }
+    .calc-stat.highlight { background: linear-gradient(135deg, #FDF3EB, #FAF8F5); border-color: #E8C4A0; }
+    .calc-stat.green-highlight { background: linear-gradient(135deg, #EDF7F2, #FAF8F5); border-color: #A0D4B8; }
+    .calc-stat-val { font-family: 'Lora', serif; font-size: 22px; font-weight: 700; color: #2D2A26; display: block; margin-bottom: 3px; }
+    .calc-stat.highlight .calc-stat-val { color: #C47830; }
+    .calc-stat.green-highlight .calc-stat-val { color: #4A9068; }
+    .calc-stat-lbl { font-size: 11px; color: #A09890; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .calc-breakdown { background: #FAF8F5; border-radius: 10px; padding: 14px 16px; }
+    .calc-br-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #EDE9E3; font-size: 13px; gap: 12px; }
+    .calc-br-row:last-child { border-bottom: none; }
+    .calc-br-label { color: #6B6560; flex: 1; }
+    .calc-br-val { font-weight: 600; color: #2D2A26; text-align: right; white-space: nowrap; }
+    .calc-br-val.warm { color: #C47830; }
+    .calc-br-val.green { color: #4A9068; }
+    .calc-chart-note { font-size: 11px; color: #B0AAA4; margin-top: 12px; font-style: italic; line-height: 1.5; text-align: center; }
+    .calc-divider-label { display: flex; align-items: center; gap: 12px; margin: 24px 0 16px; }
+    .calc-divider-label::before, .calc-divider-label::after { content: ''; flex: 1; height: 1px; background: #EDE9E3; }
+    .calc-divider-label span { font-size: 11px; color: #C4BFB8; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+    .calc-letter { background: #FFFFFF; border-radius: 16px; padding: 28px; border: 1px solid #EDE9E3; margin-top: 8px; position: relative; overflow: hidden; }
+    .calc-letter::before { content: '\201C'; font-family: 'Lora', serif; font-size: 160px; color: #F0ECE6; position: absolute; top: -30px; left: 10px; line-height: 1; pointer-events: none; }
+    .calc-letter-eyebrow { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: #E8A87C; font-weight: 500; margin-bottom: 14px; position: relative; }
+    .calc-letter-text { font-family: 'Lora', serif; font-size: 15px; line-height: 1.8; color: #4A4540; font-style: italic; position: relative; }
+    .calc-letter-text strong { font-style: normal; font-weight: 700; color: #2D2A26; }
+    .calc-empty { text-align: center; padding: 48px 20px; }
+    .calc-empty-icon { font-size: 36px; margin-bottom: 12px; }
+    .calc-empty p { font-size: 14px; line-height: 1.7; color: #A09890; }
+    .calc-cta-card { background: #2D2A26; border-radius: 16px; padding: 28px; margin-top: 16px; text-align: center; }
+    .calc-cta-eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #E8A87C; font-weight: 500; margin-bottom: 12px; }
+    .calc-cta-heading { font-family: 'Lora', serif; font-size: 20px; font-weight: 700; color: #FAF8F5; line-height: 1.3; margin-bottom: 10px; }
+    .calc-cta-text { font-size: 14px; color: #A09890; line-height: 1.7; margin-bottom: 20px; max-width: 520px; margin-left: auto; margin-right: auto; }
+    .calc-cta-text strong { color: #E8D4B8; }
+    .calc-cta-link { display: inline-block; background: #E8A87C; color: #2D2A26; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; padding: 14px 28px; border-radius: 10px; text-decoration: none; letter-spacing: 0.3px; transition: background 0.2s; }
+    .calc-cta-link:hover { background: #D4906A; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useMemo, useRef } = React;
+
+    const fmt = (n) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+    const fmtN = (n) => new Intl.NumberFormat("en-US").format(Math.ceil(n));
+
+    function App() {
+      const [salaryMode, setSalaryMode] = useState("annual");
+      const [salary, setSalary] = useState("");
+      const [coursePrice, setCoursePrice] = useState("");
+      const [showBump, setShowBump] = useState(false);
+      const [bumpPrice, setBumpPrice] = useState("");
+      const [showVip, setShowVip] = useState(false);
+      const [vipPrice, setVipPrice] = useState("");
+
+      const bumpRef = useRef(null);
+      const vipRef = useRef(null);
+      const resultsRef = useRef(null);
+
+      const scrollTo = (ref) => setTimeout(() => ref.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+      const handleAddBump = () => { setShowBump(true); scrollTo(bumpRef); };
+      const handleAddVip = () => { setShowVip(true); scrollTo(vipRef); };
+      const handleCheckResults = () => scrollTo(resultsRef);
+
+      const periodLabel = salaryMode === "monthly" ? "monthly" : "annual";
+      const periodShort = salaryMode === "monthly" ? "/ mo" : "/ yr";
+
+      const calc = useMemo(() => {
+        const salaryVal = parseFloat(salary) || 0;
+        const coursePriceVal = parseFloat(coursePrice) || 0;
+        const bumpPriceVal = parseFloat(bumpPrice) || 0;
+        const vipPriceVal = parseFloat(vipPrice) || 0;
+        if (!salaryVal || !coursePriceVal) return null;
+
+        const annual = salaryMode === "annual" ? salaryVal : salaryVal * 12;
+        const displayTarget = salaryMode === "monthly" ? salaryVal : annual;
+
+        const c1SalesAnnual = annual / coursePriceVal;
+        const c2RevenuePerSale = showBump && bumpPriceVal ? coursePriceVal + 0.25 * bumpPriceVal : null;
+        const c2SalesAnnual = c2RevenuePerSale ? annual / c2RevenuePerSale : null;
+        const c2BumpRevAnnual = c2SalesAnnual ? c2SalesAnnual * 0.25 * bumpPriceVal : null;
+        const c2SavedAnnual = c2SalesAnnual ? c1SalesAnnual - c2SalesAnnual : null;
+
+        const bumpContrib = (showBump && bumpPriceVal) ? 0.25 * bumpPriceVal : 0;
+        const c3RevenuePerSale = (showVip && vipPriceVal) ? coursePriceVal + bumpContrib + 0.03 * vipPriceVal : null;
+        const c3SalesAnnual = c3RevenuePerSale ? annual / c3RevenuePerSale : null;
+        const c3VipRevAnnual = c3SalesAnnual ? c3SalesAnnual * 0.03 * vipPriceVal : null;
+        const c3BumpRevAnnual = (showBump && bumpPriceVal && c3SalesAnnual) ? c3SalesAnnual * 0.25 * bumpPriceVal : null;
+        const baseForC3 = c2SalesAnnual || c1SalesAnnual;
+        const c3SavedAnnual = c3SalesAnnual ? baseForC3 - c3SalesAnnual : null;
+        const c3VipPctOfGoal = c3VipRevAnnual ? Math.min(100, Math.round((c3VipRevAnnual / annual) * 100)) : null;
+
+        const toD = (val) => val ? (salaryMode === "monthly" ? val / 12 : val) : null;
+
+        return {
+          annual, displayTarget, coursePriceVal, bumpPriceVal, vipPriceVal,
+          c1: { salesAnnual: c1SalesAnnual, salesWeek: c1SalesAnnual/52, salesMonth: c1SalesAnnual/12, displaySales: toD(c1SalesAnnual) },
+          c2: c2SalesAnnual ? { salesAnnual: c2SalesAnnual, salesWeek: c2SalesAnnual/52, salesMonth: c2SalesAnnual/12, displaySales: toD(c2SalesAnnual), revenuePerSale: c2RevenuePerSale, bumpRevDisplay: toD(c2BumpRevAnnual), savedDisplay: toD(c2SavedAnnual) } : null,
+          c3: c3SalesAnnual ? { salesAnnual: c3SalesAnnual, salesWeek: c3SalesAnnual/52, salesMonth: c3SalesAnnual/12, displaySales: toD(c3SalesAnnual), revenuePerSale: c3RevenuePerSale, vipRevDisplay: toD(c3VipRevAnnual), bumpRevDisplay: c3BumpRevAnnual ? toD(c3BumpRevAnnual) : null, savedDisplay: toD(c3SavedAnnual), vipPctOfGoal: c3VipPctOfGoal } : null,
+        };
+      }, [salary, coursePrice, salaryMode, showBump, bumpPrice, showVip, vipPrice]);
+
+      const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+      return (
+        <div>
+          <div className="calc-header">
+            <div className="calc-header-eyebrow">✦ Bonus Tool</div>
+            <h1>The Resignation Letter<br/>Calculator</h1>
+            <p>Plug in your numbers and see exactly what it takes to replace your salary — one simple product at a time.</p>
+          </div>
+          <div className="calc-body">
+
+            <div className="calc-card">
+              <div className="calc-card-title"><span className="calc-step-num">1</span>What salary do you want to replace?</div>
+              <div className="calc-card-desc">Enter the income you want to build toward — be bold here.</div>
+              <div className="calc-toggle">
+                <button className={salaryMode === "monthly" ? "active" : ""} onClick={() => setSalaryMode("monthly")}>Monthly</button>
+                <button className={salaryMode === "annual" ? "active" : ""} onClick={() => setSalaryMode("annual")}>Annual</button>
+              </div>
+              <div className="calc-input-wrap">
+                <span className="calc-prefix">$</span>
+                <input className="calc-input" type="number" placeholder={salaryMode === "monthly" ? "e.g. 5,000" : "e.g. 60,000"} value={salary} onChange={(e) => setSalary(e.target.value)} />
+              </div>
+              {salary && <div className="calc-convert-hint">= <span>{salaryMode === "monthly" ? fmt(parseFloat(salary)*12)+" per year" : fmt(parseFloat(salary)/12)+" per month"}</span></div>}
+            </div>
+
+            <div className="calc-card">
+              <div className="calc-card-title"><span className="calc-step-num">2</span>What does your product cost?</div>
+              <div className="calc-card-desc">This is the price of your main digital product or course.</div>
+              <div className="calc-input-wrap">
+                <span className="calc-prefix">$</span>
+                <input className="calc-input" type="number" placeholder="e.g. 37" value={coursePrice} onChange={(e) => setCoursePrice(e.target.value)} />
+              </div>
+              {coursePrice && <button className="calc-check-btn" onClick={handleCheckResults}>Check My Results ↓</button>}
+            </div>
+
+            <div className="calc-card" ref={bumpRef}>
+              <div className="calc-card-title">
+                <span className={"calc-step-num" + (showBump ? "" : " dim")}>3</span>
+                Add an order bump
+                {showBump && <button className="calc-remove-link" onClick={() => { setShowBump(false); setBumpPrice(""); }}>remove</button>}
+              </div>
+              {showBump ? (
+                <>
+                  <div className="calc-card-desc">A small add-on offered right at checkout. About 25% of buyers say yes — and it raises the value of every single sale.</div>
+                  <div className="calc-input-wrap">
+                    <span className="calc-prefix">$</span>
+                    <input className="calc-input" type="number" placeholder="e.g. 19" value={bumpPrice} onChange={(e) => setBumpPrice(e.target.value)} />
+                  </div>
+                  <div className="calc-note"><strong>How this works:</strong> Because 1 in 4 buyers adds this, your average revenue per sale goes up — which means you need fewer total sales to hit your goal.</div>
+                  {bumpPrice && <button className="calc-check-btn" onClick={handleCheckResults}>Check My Results ↓</button>}
+                </>
+              ) : (
+                <>
+                  <div className="calc-card-desc">An optional add-on at checkout can seriously change your numbers. See what happens when you add one.</div>
+                  <button className="calc-add-btn" onClick={handleAddBump}>+ Add an order bump to my calculation</button>
+                </>
+              )}
+            </div>
+
+            <div className="calc-card" ref={vipRef}>
+              <div className="calc-card-title">
+                <span className={"calc-step-num" + (showVip ? " warm" : " dim")}>4</span>
+                Add a VIP / High-Ticket offer
+                {showVip && <button className="calc-remove-link" onClick={() => { setShowVip(false); setVipPrice(""); }}>remove</button>}
+              </div>
+              {showVip ? (
+                <>
+                  <div className="calc-card-desc">A premium offer for your course buyers who want more. About 3% of buyers will say yes — and because that revenue comes from the same sale, every course you sell is now worth significantly more.</div>
+                  <div className="calc-input-wrap">
+                    <span className="calc-prefix">$</span>
+                    <input className="calc-input" type="number" placeholder="e.g. 1,000" value={vipPrice} onChange={(e) => setVipPrice(e.target.value)} />
+                  </div>
+                  <div className="calc-note"><strong>How this works:</strong> At a 3% conversion rate, every 100 course sales also generates 3 VIP sales. That added revenue means each course sale is worth more — so you need fewer of them to hit your goal.</div>
+                  {vipPrice && <button className="calc-check-btn" onClick={handleCheckResults}>Check My Results ↓</button>}
+                </>
+              ) : (
+                <>
+                  <div className="calc-card-desc">Adding a premium offer on top of your course means each sale is worth more — and your weekly number drops dramatically.</div>
+                  <button className="calc-add-btn" onClick={handleAddVip}>+ Add a VIP / high-ticket offer</button>
+                </>
+              )}
+            </div>
+
+            <div ref={resultsRef}>
+              {!calc ? (
+                <div className="calc-empty">
+                  <div className="calc-empty-icon">✨</div>
+                  <p>Enter your salary goal and product price above<br/>to see your personal freedom number.</p>
+                </div>
+              ) : (
+                <div className="calc-results">
+                  <div className="calc-results-label">✦ Your Results ✦</div>
+
+                  <div className="calc-hero">
+                    <div className="calc-hero-eyebrow">Sales needed per week</div>
+                    <div className="calc-hero-num">{fmtN(calc.c1.salesWeek)}</div>
+                    <div className="calc-hero-unit">sales per week at {fmt(calc.coursePriceVal)}</div>
+                    <div className="calc-hero-sub">
+                      <div className="calc-hero-sub-item"><span className="calc-hero-sub-val">{fmtN(calc.c1.salesMonth)}</span><span className="calc-hero-sub-label">per month</span></div>
+                      <div className="calc-hero-sub-item"><span className="calc-hero-sub-val">{fmtN(calc.c1.salesAnnual)}</span><span className="calc-hero-sub-label">per year</span></div>
+                    </div>
+                  </div>
+
+                  <div className="calc-chart-card">
+                    <div className="calc-chart-title">📘 Scenario 1 — Your course alone</div>
+                    <div className="calc-chart-sub">Selling your main product at {fmt(calc.coursePriceVal)} each. Here is what you need to hit your goal.</div>
+                    <div className="calc-stat-row">
+                      <div className="calc-stat"><span className="calc-stat-val">{fmtN(calc.c1.salesWeek)}</span><span className="calc-stat-lbl">per week</span></div>
+                      <div className="calc-stat"><span className="calc-stat-val">{fmtN(calc.c1.salesMonth)}</span><span className="calc-stat-lbl">per month</span></div>
+                      <div className="calc-stat"><span className="calc-stat-val">{fmtN(calc.c1.salesAnnual)}</span><span className="calc-stat-lbl">per year</span></div>
+                    </div>
+                    <div className="calc-breakdown">
+                      <div className="calc-br-row"><span className="calc-br-label">{cap(periodLabel)} income goal</span><span className="calc-br-val">{fmt(calc.displayTarget)} {periodShort}</span></div>
+                      <div className="calc-br-row"><span className="calc-br-label">Revenue per sale</span><span className="calc-br-val">{fmt(calc.coursePriceVal)}</span></div>
+                      <div className="calc-br-row"><span className="calc-br-label">{cap(periodLabel)} sales needed</span><span className="calc-br-val green">{fmtN(calc.c1.displaySales)} sales {periodShort}</span></div>
+                    </div>
+                    {!showBump && (
+                      <div className="calc-encourage">
+                        <p>Want to see how an <strong>order bump at checkout</strong> changes these numbers? Even a small add-on raises the value of every sale.</p>
+                        <button className="calc-add-btn" onClick={handleAddBump}>+ Add an order bump to see the difference</button>
+                      </div>
+                    )}
+                  </div>
+
+                  {calc.c2 && (
+                    <div className="calc-chart-card">
+                      <div className="calc-chart-title">🧾 Scenario 2 — This is how your numbers change with an order bump</div>
+                      <div className="calc-chart-sub">Add a {fmt(calc.bumpPriceVal)} order bump. At an average 25% conversion, your revenue per sale increases — and here is how your course numbers change.</div>
+                      <div className="calc-stat-row">
+                        <div className="calc-stat highlight"><span className="calc-stat-val">{fmtN(calc.c2.salesWeek)}</span><span className="calc-stat-lbl">per week</span></div>
+                        <div className="calc-stat highlight"><span className="calc-stat-val">{fmtN(calc.c2.salesMonth)}</span><span className="calc-stat-lbl">per month</span></div>
+                        <div className="calc-stat highlight"><span className="calc-stat-val">{fmtN(calc.c2.salesAnnual)}</span><span className="calc-stat-lbl">per year</span></div>
+                      </div>
+                      <div className="calc-breakdown">
+                        <div className="calc-br-row"><span className="calc-br-label">Blended revenue per sale (with bump)</span><span className="calc-br-val warm">{fmt(calc.c2.revenuePerSale)}</span></div>
+                        <div className="calc-br-row"><span className="calc-br-label">Estimated bump revenue ({periodLabel})</span><span className="calc-br-val warm">+{fmt(calc.c2.bumpRevDisplay)} {periodShort}</span></div>
+                        <div className="calc-br-row"><span className="calc-br-label">Course sales now needed ({periodLabel})</span><span className="calc-br-val">{fmtN(calc.c2.displaySales)} {periodShort}</span></div>
+                        <div className="calc-br-row"><span className="calc-br-label">Fewer sales vs. course alone ({periodLabel})</span><span className="calc-br-val green">−{fmtN(calc.c2.savedDisplay)} sales {periodShort}</span></div>
+                      </div>
+                      <div className="calc-chart-note">* Estimated at an average 25% order bump conversion rate. Your results may vary.</div>
+                      {!showVip && (
+                        <div className="calc-encourage">
+                          <p>Now imagine adding a <strong>VIP or high-ticket offer</strong>. At just 3% of your buyers, each course sale becomes worth even more — and your weekly number drops further.</p>
+                          <button className="calc-add-btn" onClick={handleAddVip}>+ Add a VIP offer to see the full picture</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {calc.c3 && (
+                    <div className="calc-chart-card">
+                      <div className="calc-chart-title">⭐ Scenario 3 — With your order bump + VIP offer</div>
+                      <div className="calc-chart-sub">At 3% of your course buyers, your VIP offer at {fmt(calc.vipPriceVal)} adds revenue to every 100 sales. That increases what each course sale is worth — and here is how many you now need.</div>
+                      <div className="calc-stat-row">
+                        <div className="calc-stat green-highlight"><span className="calc-stat-val">{fmtN(calc.c3.salesWeek)}</span><span className="calc-stat-lbl">per week</span></div>
+                        <div className="calc-stat green-highlight"><span className="calc-stat-val">{fmtN(calc.c3.salesMonth)}</span><span className="calc-stat-lbl">per month</span></div>
+                        <div className="calc-stat green-highlight"><span className="calc-stat-val">{fmtN(calc.c3.salesAnnual)}</span><span className="calc-stat-lbl">per year</span></div>
+                      </div>
+                      <div className="calc-breakdown">
+                        <div className="calc-br-row"><span className="calc-br-label">Blended revenue per sale (course + bump + VIP)</span><span className="calc-br-val warm">{fmt(calc.c3.revenuePerSale)}</span></div>
+                        <div className="calc-br-row"><span className="calc-br-label">Estimated VIP revenue ({periodLabel}, 3 per 100 sales)</span><span className="calc-br-val warm">+{fmt(calc.c3.vipRevDisplay)} {periodShort}</span></div>
+                        {calc.c3.bumpRevDisplay && <div className="calc-br-row"><span className="calc-br-label">Estimated bump revenue ({periodLabel})</span><span className="calc-br-val warm">+{fmt(calc.c3.bumpRevDisplay)} {periodShort}</span></div>}
+                        <div className="calc-br-row"><span className="calc-br-label">Course sales needed ({periodLabel})</span><span className="calc-br-val green">{fmtN(calc.c3.displaySales)} sales {periodShort}</span></div>
+                        <div className="calc-br-row"><span className="calc-br-label">Fewer sales vs. previous scenario ({periodLabel})</span><span className="calc-br-val green">−{fmtN(calc.c3.savedDisplay)} fewer {periodShort}</span></div>
+                      </div>
+                      <div className="calc-chart-note">* VIP at 3% and order bump at 25% are average estimates. You still need every one of those course sales — VIP and bump simply make each one worth more.</div>
+                    </div>
+                  )}
+
+                  <div className="calc-divider-label"><span>your resignation letter</span></div>
+                  <div className="calc-letter">
+                    <div className="calc-letter-eyebrow">✦ Your Resignation Letter Preview</div>
+                    <div className="calc-letter-text">
+                      To whom it may concern — I'm writing to let you know I'm officially done.
+                      Not because I'm giving up, but because I'm choosing myself. I've done the math.
+                      I need <strong>{fmtN(calc.c1.salesAnnual)} course sales</strong> at <strong>{fmt(calc.coursePriceVal)}</strong> each
+                      {calc.c2 && <span> — and with a simple <strong>{fmt(calc.bumpPriceVal)} order bump</strong>, that drops to just <strong>{fmtN(calc.c2.salesAnnual)} sales</strong></span>}
+                      {calc.c3 && <span>, and with a <strong>VIP offer at {fmt(calc.vipPriceVal)}</strong>, down to just <strong>{fmtN(calc.c3.salesAnnual)} sales</strong></span>}
+                      {" "}to replace my <strong>{fmt(calc.annual)}/year</strong> income — and I know exactly how to get there. Consider this my notice.
+                    </div>
+                  </div>
+
+                  <div className="calc-cta-card">
+                    <div className="calc-cta-eyebrow">✦ Ready to build it?</div>
+                    <div className="calc-cta-heading">You already know what to sell.<br/>Now learn how to sell it.</div>
+                    <div className="calc-cta-text">
+                      You have seen the numbers. You know what your course needs to do.
+                      But knowing the math and <strong>building the system</strong> — the order bump, the VIP offer, the sales flow that runs without you — that is a different step entirely.
+                      <br/><br/>
+                      That is exactly what Business Building Bootcamp is built for.
+                    </div>
+                    <a className="calc-cta-link" href="https://leadforresults.mysamcart.com/business-building-bootcamp" target="_blank" rel="noopener noreferrer">
+                      Join Business Building Bootcamp
+                    </a>
+                  </div>
+
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
